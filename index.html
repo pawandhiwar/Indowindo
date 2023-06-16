@@ -1,0 +1,98 @@
+
+
+{% block content %}
+
+{% load cart %}
+{% load custom_filter %}
+
+{% include 'header.html' %}
+
+
+
+<!-- body -->
+<div class="container-fluid mt-3">
+	<div class="row">
+
+
+		<!-- filter -->
+
+		<div class="col-lg-3 mx-auto ">
+			<div class="list-group ">
+
+				<a href="/" class="list-group-item list-group-item-action bg-warning 
+				 d-flex justify-content-center " style="background: rgb(239,255,80);
+				 background: linear-gradient(0deg, rgba(239,255,80,0.9556197478991597) 46%, rgba(255,244,110,0.896796218487395) 100%);"><h5>All Products</h5></a>
+
+				{% for category in categories %}
+				<a href="/?category={{category.id}}"
+					class="list-group-item list-group-item-action  
+					" style="border: 1px solid rgba(0, 0, 0, 0.185); box-shadow: 1px 1px 3px black;
+					">{{category.name}}</a>
+				{% endfor %}
+			</div>
+		</div>
+
+		<!-- all products -->
+		<div id='products' class="col-lg-9 mx-auto">
+			<div class="row mx-auto">
+				{% for product in products %}
+				<div class="card mx-auto mb-3" id={{product.id}} style="width: 18rem;">
+					
+					<div class="card-body">
+						<video style="height: 13rem;"  class="card-img-top 
+						embed-responsive embed-responsive-16by9 mr-0"
+						 controls 
+						{% if  product.thumb %}
+						poster="{{product.thumb.url}}"
+						{% endif%}
+						>
+						
+						<source src="{{ product.video.url}}" type="video/mp4"/>
+					    </video >
+						<p class="card-title">{{product.name}}</p>
+						<p class="card-text"><b>{{product.price|currency}}</b></p>
+						<!-- {{product | is_in_cart:request.session.cart }} -->
+					</div>
+
+					<div class="card-footer p-0 no-gutters">
+
+						{% if product|is_in_cart:request.session.cart %}
+						<div class="row no-gutters">
+							<form action="/#{{product.id}}" class="col-2 " method="post">
+								{% csrf_token %}
+								<input hidden type="text" name='product' value='{{product.id}}'>
+								<input hidden type="text" name='remove' value='True'>
+								<input type="submit" value=" - " class="btn btn-block btn-light border-right">
+							</form>
+							<div class="text-center col">{{product|cart_quantity:request.session.cart}} in Cart</div>
+							<form action="/#{{product.id}}" class="col-2 " method="post">
+								{% csrf_token %}
+								<input hidden type="text" name='product' value='{{product.id}}'>
+								<input type="submit" value=" + " class="btn btn-block btn-light border-left">
+							</form>
+						</div>
+						{% else %}
+						<form action="/#{{product.id}}" method="POST" class="btn-block">
+							{% csrf_token %}
+							<input hidden type="text" name='product' value='{{product.id}}'>
+							<input type="submit" class="float-right btn btn-light  form-control"
+								value="Add To Cart">
+						</form>
+						{% endif %}
+
+					</div>
+
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+{% endblock %}
+
+{% include 'mid.html' %}
+
+{% include 'footer.html' %}
